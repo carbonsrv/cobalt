@@ -30,9 +30,9 @@ local function log(level, msg)
 	logger.log("Main", level, msg)
 end
 
-log(logger.normal, "Loading init files...")
-local loadtime = loader.load("init.d/*")
-log(logger.normal, "Done loading. Took "..tostring(loadtime).."s.")
+log(logger.normal, "Loading Init files...")
+local loaded, loadtime = loader.load("init.d/*")
+log(logger.normal, "Loaded "..tostring(loaded).." Init Files. Took "..tostring(loadtime).."s.")
 
 -- Just wait here until we get signaled that we're done.
 -- To exit: rpc.call("cobalt.exit", status)

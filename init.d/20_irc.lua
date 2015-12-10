@@ -8,25 +8,22 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 	event.handle("irc:send", function(name, line) -- Easy hook for message sending: event.fire("irc:send", "esper", "NICK Cobalt")
 		event = event or require("libs.event")
 		logger = logger or require("libs.logger")
-		print("Sending")
 		event.fire("irc:send_"..name, line)
 	end)
 
 
 	event.handle("irc:new_conn", function(server_name) -- Handle new connections
 		-- TODO: Replace stub.
-		print("New con")
 		event = event or require("libs.event")
 		event.fire("irc:send_".. server_name, "NICK "..irc_set[server_name].nick)
 		event.fire("irc:send_".. server_name, "USER "..irc_set[server_name].user.." ~ ~ :"..irc_set[server_name].real)
 
 		event.fire("irc:finished_init", server_name)
-		print("Fired events.")
 	end, {
 		irc_set = settings.irc
 	})
 
-	event.handle("irc:finished_init", function(server_name) -- Handle new connections
+	event.handle("irc:finished_init", function(server_name) -- Handle finished connections
 		event = event or require("libs.event")
 		os.sleep(10)
 
@@ -34,14 +31,13 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 			os.sleep(0.5)
 			event.fire("irc:send_"..server_name, "JOIN "..chan)
 		end
-		print("Fired events.")
 	end, {
 		irc_set = settings.irc
 	})
 
 	event.handle("irc:raw", function(server_name, line)
-		logger = logger or require("libs.logger")
-		logger.log("irc:"..server_name, logger.normal, line)
+		--logger = logger or require("libs.logger")
+		--logger.log("irc:"..server_name, logger.normal, line)
 
 		event = event or require("libs.event")
 		if line:match("^PING") then
@@ -62,7 +58,6 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 		net.write(conn, "") -- Just to initialize.
 
 		event.handle("irc:send_"..name, function(line)
-			print("Sending to "..short_name)
 			if not conn then
 				conn = kvstore.get("irc:conn_"..short_name) -- Get the connection, but repeat if we fail.
 			end
@@ -77,9 +72,7 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 			local event = require("libs.event")
 
 			conn = kvstore.get("irc:conn_"..short_name) -- Get the connection.
-			print(conn)
 			event.fire("irc:new_conn", short_name) -- Fire the init event.
-			print("Got conn")
 			while true do
 				local line, err = net.readline(conn)
 				if err == "EOF" then
@@ -94,4 +87,15 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 		})
 		logger.log("IRC", logger.normal, "Connected to "..name..".")
 	end
+
+	event.handle("irc:raw", function(server, line) -- throw the messages in the parser!
+		irc = irc or require("libs.irc")
+		irc.event_parse(server, line)
+	end)
+
+	--event.handle("irc:send", function(server, line) -- throw the messages in the parser!
+	--	irc = irc or require("libs.irc")
+	--	irc.event_parse(server, line)
+	--end)
+
 end

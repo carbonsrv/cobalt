@@ -9,8 +9,13 @@ return {
 			user = "Cobalt",
 			real = "Cobalt. Really.",
 
+			prefix = ":",
+
 			channels = {
 				"#V"
+			},
+			permissions = {
+				["vifino!vifino@tty.sh"] = 3,
 			}
 		}
 	}

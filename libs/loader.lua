@@ -18,7 +18,7 @@ function _M.load(pattern, output)
 		dofile(name)
 	end
 	if output then log(logger.normal, "Loader done.") end
-	return os.clock() - start
+	return len, os.clock() - start
 end
 
 return _M
