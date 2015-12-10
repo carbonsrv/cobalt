@@ -10,7 +10,7 @@ _M.debug = cobalt and cobalt.debug or false -- Debugging turned on or off depend
 
 -- Levels:
 --  0: Critical priority, for _very_ _important_ messages. Red.
---  1: Important info, but not critical
+--  1: Important info, but not critical. Yellow.
 --  2: Normal level, to be viewed, but generally nobody cares.
 --  3: Debug output, won't output unless debug is enabled.
 _M.critical = 0

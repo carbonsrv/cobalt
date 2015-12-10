@@ -27,8 +27,9 @@ local loadtime = loader.load("init.d/*")
 log(logger.normal, "Done loading. Took "..tostring(loadtime).."s.")
 
 -- Just wait here until we get signaled that we're done.
+-- To exit: rpc.call("cobalt.exit", status)
 local quitcom = com.create()
-pubsub.sub("cobalt.quit", quitcom)
+pubsub.sub("command:cobalt.exit", quitcom)
 
 local status = com.receive(quitcom)
 log(logger.important, "Shutting down...")

@@ -25,11 +25,11 @@ end)
 kvstore.set("dispatcher_thread", _M.dispatcher)
 
 -- Subscribe to topic.
-function _M.sub(path, chan)
+function _M.sub(path, chan, bindings, buffer)
 	if chan then
 		local chan = chan
 		if type(chan) == "function" then
-			chan = thread.spawn(chan)
+			chan = thread.spawn(chan, bindings, buffer)
 		end
 		kvstore.set("dispatcher_tmp:"..path, chan)
 		com.send(_M.dispatcher, msgpack.pack{
