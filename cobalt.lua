@@ -14,7 +14,15 @@ if not carbon then
 	os.exit(1)
 end
 
+if args[1] == nil then
+	print("Usage: cobalt settings.lua")
+	os.exit(1)
+else
+	settings = dofile(args[1])
+end
+
 -- Load libs.
+thread = require("thread")
 logger = require("libs.logger")
 loader = require("libs.loader")
 

@@ -34,7 +34,7 @@ function _M.call(name, ...)
 	if ({...})[1] then
 		pubsub.pub("command:"..name, msgpack.pack({...}))
 	else
-		pubsub.pub(name)
+		pubsub.pub("command:"..name)
 	end
 end
 
