@@ -25,3 +25,13 @@ end
 log(logger.normal, "Loading init files...")
 local loadtime = loader.load("init.d/*")
 log(logger.normal, "Done loading. Took "..tostring(loadtime).."s.")
+
+-- Just wait here until we get signaled that we're done.
+local quitcom = com.create()
+pubsub.sub("cobalt.quit", quitcom)
+
+local status = com.receive(quitcom)
+log(logger.important, "Shutting down...")
+
+-- TODO: Replace with proper shutdown stub.
+os.exit(status or 0)
