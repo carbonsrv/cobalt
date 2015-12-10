@@ -54,7 +54,7 @@ function _M.sub(path, chan, bindings, buffer)
 	if chan then
 		local chan = chan
 		if type(chan) == "function" then
-			chan = thread.spawn(chan, bindings, buffer)
+			chan = thread.spawn(chan, bindings, buffer or 64)
 		end
 		kvstore.set("dispatcher_tmp:"..path, chan)
 		com.send(_M.dispatcher, msgpack.pack{
