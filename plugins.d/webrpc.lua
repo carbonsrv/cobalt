@@ -4,7 +4,7 @@ srv.POST("/api/call/:name", mw.new(function()
 	rpc = rpc or require("libs.multirpc")
 	logger = logger or require("libs.logger")
 
-	if whitelist[context.ClientIP():gsub(":(%d+)", "")] then
+	if whitelist[context.ClientIP():gsub(":(%d+)$", "")] then
 		local funcname = param("name")
 		if funcname then
 			local args = {}
@@ -36,3 +36,13 @@ end, {
 local nofunc = mw.echo("No function name given.", 406)
 srv.POST("/api/call", nofunc)
 srv.POST("/api/call/", nofunc)
+
+srv.DefaultRoute(mw.new(function()
+	rpc = rpc or require("libs.multirpc")
+
+	-- Send the 404 early, log afterwards.
+	content("404 page not found", 404)
+
+	-- Log with priority "important".
+	rpc.call("log", "HTTP", 1, context.ClientIP():gsub(":(%d+)$", "").. " tried to access "..path..", resulting in 404.")
+end))

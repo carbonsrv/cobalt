@@ -1,4 +1,4 @@
--- Multi-command multi-result RPC based on the pubsub.
+-- Commands for the chat bot thing, mostly just an event responder.
 
 local _M = {}
 
@@ -13,38 +13,44 @@ function _M.command(name, func, bindings)
 	for k, v in pairs(bindings or {}) do
 		binds[k] = v
 	end
-	pubsub.sub("cmd:"..name, function()
+	pubsub.sub("chatcmd:"..name, function()
 		msgpack = require("msgpack")
 		logger = require("libs.logger")
 		rpc = require("libs.multirpc")
 		event = require("libs.event")
 		prettify = require("prettify")
 		function print(...)
-			rpc.call("log", event_name, logger.normal, prettify(...))
+			logger.log(event_name, logger.normal, prettify(...))
 		end
 		local func = loadstring(f)
 		f = nil
 		while true do
 			local src = com.receive(threadcom)
-			local args
-			if src then
-				args = msgpack.unpack(src)
-			else
-				args = {}
-			end
-			local suc, err = pcall(func, unpack(args))
+			local res = msgpack.unpack(src)
+
+			local args = res.args
+
+			local suc, res = pcall(func, unpack(args))
 			if not suc then
-				rpc.call("log", state_name, logger.critical, err)
+				logger.log(state_name, logger.critical, res)
 			end
 		end
 	end, binds)
 end
 
-function _M.call(name, ...)
+function _M.call(rpc_name, rpcargs, ...)
 	if ({...})[1] then
-		pubsub.pub("cmd:"..name, msgpack.pack({...}))
+		pubsub.pub("chatcmd:"..name, msgpack.pack({
+			["rpc_name"] = rpc_name,
+			["rpc"] = rpcargs,
+			["args"] = {...}
+		}))
 	else
-		pubsub.pub("cmd:"..name)
+		pubsub.pub("chatcmd:"..name, msgpack.pack({
+			["rpc_name"] = rpc_name,
+			["rpc"] = rpcargs,
+			["args"] = {}
+		}))
 	end
 end
 

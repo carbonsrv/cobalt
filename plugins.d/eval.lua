@@ -9,24 +9,22 @@ event.handle("irc:privmsg", function(server, from, to, message)
 				local sendto = sender == irc_set[server].nick and sender or to
 				function print(...)
 					for k, v in pairs({...}) do
-						event.fire("irc:send", server, "PRIVMSG "..sendto.." :"..tostring(v))
+						rpc.call("irc.msg", server, sendto, tostring(v))
 					end
 				end
 				local f, err = loadstring("return "..match)
 				if err then
 					f, err = loadstring(match)
 					if err then
-						event.fire("irc:send", server, "PRIVMSG "..sendto.." :".."Error: "..err)
+						rpc.call("irc.msg", server, sendto, "Error: "..err)
 						return
 					end
 				end
 				local suc, res = pcall(f)
 				if suc then
-					if res then
-						event.fire("irc:send", server, "PRIVMSG "..sendto.." :".."-> "..tostring(res))
-					end
+					rpc.call("irc.msg", server, sendto, "-> "..tostring(res))
 				else
-					event.fire("irc:send", server, "PRIVMSG "..sendto.." :".."Error: "..res)
+					rpc.call("irc.msg", server, sendto, "Error: "..res)
 				end
 			end
 		end)

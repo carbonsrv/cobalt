@@ -7,7 +7,6 @@ local event = require("libs.event")
 if settings.irc then -- Only continue if there are actually IRC Servers in the config.
 	event.handle("irc:send", function(name, line) -- Easy hook for message sending: event.fire("irc:send", "esper", "NICK Cobalt")
 		event = event or require("libs.event")
-		logger = logger or require("libs.logger")
 		event.fire("irc:send_"..name, line)
 	end)
 
@@ -37,7 +36,7 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 
 	event.handle("irc:raw", function(server_name, line)
 		--logger = logger or require("libs.logger")
-		--logger.log("irc:"..server_name, logger.normal, line)
+		--rpc.call("log", "irc:"..server_name, logger.normal, line)
 
 		event = event or require("libs.event")
 		if line:match("^PING") then
@@ -52,7 +51,7 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 
 	for name, data in pairs(settings.irc) do -- Loop through servers
 		i = i + 1
-		logger.log("IRC", logger.normal, "("..tostring(i).."/"..tostring(length)..") Connecting to "..name.."...")
+		rpc.call("log", "IRC", logger.normal, "("..tostring(i).."/"..tostring(length)..") Connecting to "..name.."...")
 		local conn = net.dial(data.proto or "tcp", data.address..":"..tostring(data.port)) -- Connect
 		kvstore.set("irc:conn_"..name, conn)
 		net.write(conn, "") -- Just to initialize.
@@ -65,6 +64,26 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 		end, {
 			["short_name"] = name
 		})
+
+		-- The below breaks cobalt, sadly.
+		--[[event.handle("irc:finished_init", function(server_name)
+			if server_name == identifier then
+				rpc.command("log", function(phonetic_name, level, message)
+					if level <= logger.important then
+						for n, chan in pairs(list) do
+							event.fire("print", "irc:send_"..identifier, "PRIVMSG "..chan.." :["..phonetic_name.."]> " .. ((level == 3 and "\x034") or (level == 2 and "\x0315")) .. message .. "\x0f")
+							event.fire("irc:send_"..identifier, "PRIVMSG "..chan.." :["..phonetic_name.."]> " .. ((level == 3 and "\x034") or (level == 2 and "\x0315")) .. message .. "\x0f")
+						end
+					end
+				end, {
+					["identifier"] = name,
+					["list"] = list,
+				})
+			end
+		end, {
+			["identifier"] = name,
+			["list"] = settings.irc[name].log_output,
+		})]]
 
 		os.sleep(0.5)
 
@@ -85,7 +104,7 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 		end, {
 			["short_name"] = name
 		})
-		logger.log("IRC", logger.normal, "Connected to "..name..".")
+		rpc.call("log", "IRC", logger.normal, "Connected to "..name..".")
 	end
 
 	event.handle("irc:raw", function(server, line) -- throw the messages in the parser!
@@ -98,12 +117,17 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 		event.fire("irc:send", server, line)
 	end)
 
-	rpc.command("irc.msg", function(server, to, msg) -- throw the messages in the parser!
+	rpc.command("irc.msg", function(server, to, msg)
 		event = event or require("libs.event")
 		local msg = msg .. "\n"
 		for m in msg:gmatch("(.-)\n") do
 			event.fire("irc:send", server, "PRIVMSG "..to.." :"..m)
 		end
+	end)
+
+	rpc.command("irc.action", function(server, chan, text) -- throw the messages in the parser!
+		event = event or require("libs.event")
+		event.fire("irc:send", server, "PRIVMSG #V :\1ACTION "..text.."\1")
 	end)
 
 end

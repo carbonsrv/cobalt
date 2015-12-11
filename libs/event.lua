@@ -17,9 +17,10 @@ function _M.handle(name, func, bindings)
 		msgpack = require("msgpack")
 		logger = require("libs.logger")
 		event = require("libs.event")
+		rpc = require("libs.multirpc")
 		prettify = require("prettify")
 		function print(...)
-			logger.log(event_name, logger.normal, prettify(...))
+			rpc.call("log", event_name, logger.normal, prettify(...))
 		end
 		local func = loadstring(f)
 		f = nil
@@ -33,7 +34,7 @@ function _M.handle(name, func, bindings)
 			end
 			local suc, err = pcall(func, unpack(args))
 			if not suc then
-				logger.log(state_name, logger.critical, err)
+				rpc.call("log", state_name, logger.critical, err)
 			end
 		end
 	end, binds)

@@ -27,12 +27,12 @@ logger = require("libs.logger")
 loader = require("libs.loader")
 
 local function log(level, msg)
-	logger.log("Main", level, msg)
+	rpc.call("log", "Main", level, msg)
 end
 
-log(logger.normal, "Loading Init files...")
+logger.log("Main", logger.normal, "Loading Init files...")
 local loaded, loadtime = loader.load("init.d/*")
-log(logger.normal, "Loaded "..tostring(loaded).." Init Files. Took "..tostring(loadtime).."s.")
+logger.log("Main", logger.normal, "Loaded "..tostring(loaded).." Init Files. Took "..tostring(loadtime).."s.")
 
 -- Just wait here until we get signaled that we're done.
 -- To exit: rpc.call("cobalt.exit", status)

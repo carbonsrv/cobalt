@@ -1,7 +1,7 @@
 -- Loads plugins.
 
 local function log(level, msg)
-	logger.log("PluginInit", level, msg)
+	rpc.call("log", "PluginInit", level, msg)
 end
 
 log(logger.normal, "Loading plugins...")

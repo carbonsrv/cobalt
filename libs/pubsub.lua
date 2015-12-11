@@ -33,7 +33,7 @@ _M.dispatcher = kvstore.get("dispatcher_thread") or thread.spawn(function()
 						com.send(chan, message)
 					end
 				else
-					logger.log("Dispatcher", logger.alert, "Pubsub event for "..path.." fired but nobody cared!")
+					rpc.call("log", "Dispatcher", logger.alert, "Pubsub event for "..path.." fired but nobody cared!")
 				end
 			end
 			if #(kvstore.get("coms:"..path) or {}) >= 3 then
