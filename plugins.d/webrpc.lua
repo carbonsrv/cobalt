@@ -8,7 +8,7 @@ srv.POST("/api/call/:name", mw.new(function()
 		local funcname = param("name")
 		if funcname then
 			local args = {}
-			for i=1,10 do
+			for i=1,100 do
 				local p = form("arg"..tostring(i))
 				if p then
 					local x = p
@@ -19,11 +19,11 @@ srv.POST("/api/call/:name", mw.new(function()
 				end
 			end
 
-			logger.log("webrpc", logger.normal, "Calling "..funcname.." with " .. tostring(#args) .. " arguments.")
+			rpc.call("log.normal", "webrpc", "Calling "..funcname.." with " .. tostring(#args) .. " arguments.")
 			rpc.call(funcname, unpack(args))
 			content("", 200)
 		else
-			logger.log("webrpc", logger.important, "Unauthorized call to "..funcname.." with " .. tostring(#args) .. " arguments blocked.")
+			rpc.call("log.important", "webrpc", "Unauthorized call to "..funcname.." with " .. tostring(#args) .. " arguments blocked.")
 			content("IP not in whitelist!", 401)
 		end
 	else
@@ -44,5 +44,5 @@ srv.DefaultRoute(mw.new(function()
 	content("404 page not found", 404)
 
 	-- Log with priority "important".
-	rpc.call("log", "HTTP", 1, context.ClientIP():gsub(":(%d+)$", "").. " tried to access "..path..", resulting in 404.")
+	rpc.call("log.important", "HTTP", context.ClientIP():gsub(":(%d+)$", "").. " tried to access "..path..", resulting in 404.")
 end))

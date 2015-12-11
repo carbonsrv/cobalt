@@ -51,7 +51,7 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 
 	for name, data in pairs(settings.irc) do -- Loop through servers
 		i = i + 1
-		rpc.call("log", "IRC", logger.normal, "("..tostring(i).."/"..tostring(length)..") Connecting to "..name.."...")
+		rpc.call("log.normal", "IRC", "("..tostring(i).."/"..tostring(length)..") Connecting to "..name.."...")
 		local conn = net.dial(data.proto or "tcp", data.address..":"..tostring(data.port)) -- Connect
 		kvstore.set("irc:conn_"..name, conn)
 		net.write(conn, "") -- Just to initialize.
@@ -104,7 +104,7 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 		end, {
 			["short_name"] = name
 		})
-		rpc.call("log", "IRC", logger.normal, "Connected to "..name..".")
+		rpc.call("log.normal", "IRC", "Connected to "..name..".")
 	end
 
 	event.handle("irc:raw", function(server, line) -- throw the messages in the parser!

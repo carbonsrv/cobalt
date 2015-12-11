@@ -43,4 +43,6 @@ local status = com.receive(quitcom)
 log(logger.important, "Shutting down...")
 
 -- TODO: Replace with proper shutdown stub.
+os.sleep(5) -- Let cleanup and stuff happen.
+log(logger.important, "Goodbye!")
 os.exit(status or 0)

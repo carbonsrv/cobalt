@@ -20,7 +20,7 @@ function _M.command(name, func, bindings)
 		event = require("libs.event")
 		prettify = require("prettify")
 		function print(...)
-			rpc.call("log", event_name, logger.normal, prettify(...))
+			rpc.call("log.normal", event_name, prettify(...))
 		end
 		local func = loadstring(f)
 		f = nil
@@ -34,7 +34,7 @@ function _M.command(name, func, bindings)
 			end
 			local suc, err = pcall(func, unpack(args))
 			if not suc then
-				rpc.call("log", state_name, logger.critical, err)
+				rpc.call("log.critical", state_name, err)
 			end
 		end
 	end, binds)
