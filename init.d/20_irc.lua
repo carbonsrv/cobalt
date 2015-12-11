@@ -93,9 +93,17 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 		irc.event_parse(server, line)
 	end)
 
-	--event.handle("irc:send", function(server, line) -- throw the messages in the parser!
-	--	irc = irc or require("libs.irc")
-	--	irc.event_parse(server, line)
-	--end)
+	rpc.command("irc.send", function(server, line) -- throw the messages in the parser!
+		event = event or require("libs.event")
+		event.fire("irc:send", server, line)
+	end)
+
+	rpc.command("irc.msg", function(server, to, msg) -- throw the messages in the parser!
+		event = event or require("libs.event")
+		local msg = msg .. "\n"
+		for m in msg:gmatch("(.-)\n") do
+			event.fire("irc:send", server, "PRIVMSG "..to.." :"..m)
+		end
+	end)
 
 end

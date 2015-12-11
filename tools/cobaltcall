@@ -1,0 +1,27 @@
+#!/bin/sh
+
+# Calls RPC Commands via the commandline.
+
+if [ "$COBALT_RPC" == "" ]; then
+	echo 'Please set $COBALT_RPC to the api endpoint. (Usually something like "http://myserver.tld:8080/api")'
+	exit 1
+fi
+
+# Store method.
+method=$1
+shift
+
+# Counter for arguments
+i=1
+
+# Curl arguments
+argstring=""
+
+for arg in "$@"
+do
+	argstring+=" --data-urlencode \"arg$i=$arg\""
+	i=$((i + 1))
+done
+
+# Don't ask.
+eval exec curl -X POST --insecure $argstring "$COBALT_RPC/call/$method"

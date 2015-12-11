@@ -7,6 +7,11 @@ event.handle("irc:privmsg", function(server, from, to, message)
 			if match and match ~= "" then
 				local sender = from:match("^(.-)!")
 				local sendto = sender == irc_set[server].nick and sender or to
+				function print(...)
+					for k, v in pairs({...}) do
+						event.fire("irc:send", server, "PRIVMSG "..sendto.." :"..tostring(v))
+					end
+				end
 				local f, err = loadstring("return "..match)
 				if err then
 					f, err = loadstring(match)

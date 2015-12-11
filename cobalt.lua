@@ -37,7 +37,7 @@ log(logger.normal, "Loaded "..tostring(loaded).." Init Files. Took "..tostring(l
 -- Just wait here until we get signaled that we're done.
 -- To exit: rpc.call("cobalt.exit", status)
 local quitcom = com.create()
-pubsub.sub("command:cobalt.exit", quitcom)
+pubsub.sub("cmd:cobalt.exit", quitcom)
 
 local status = com.receive(quitcom)
 log(logger.important, "Shutting down...")

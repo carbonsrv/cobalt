@@ -5,10 +5,23 @@ local _M = {}
 local msgpack = require("msgpack")
 local pubsub = require("libs.pubsub")
 
-function _M.command(name, func)
-	pubsub.sub("command:"..name, function()
-		local msgpack = require("msgpack")
-		local logger = require("libs.logger")
+function _M.command(name, func, bindings)
+	local binds = {
+		f = string.dump(func),
+		event_name = name
+	}
+	for k, v in pairs(bindings or {}) do
+		binds[k] = v
+	end
+	pubsub.sub("cmd:"..name, function()
+		msgpack = require("msgpack")
+		logger = require("libs.logger")
+		rpc = require("libs.multirpc")
+		event = require("libs.event")
+		prettify = require("prettify")
+		function print(...)
+			logger.log(event_name, logger.normal, prettify(...))
+		end
 		local func = loadstring(f)
 		f = nil
 		while true do
@@ -24,17 +37,14 @@ function _M.command(name, func)
 				logger.log(state_name, logger.critical, err)
 			end
 		end
-	end, {
-		f = string.dump(func),
-		state_name = name
-	})
+	end, binds)
 end
 
 function _M.call(name, ...)
 	if ({...})[1] then
-		pubsub.pub("command:"..name, msgpack.pack({...}))
+		pubsub.pub("cmd:"..name, msgpack.pack({...}))
 	else
-		pubsub.pub("command:"..name)
+		pubsub.pub("cmd:"..name)
 	end
 end
 
