@@ -5,5 +5,5 @@ local function log(level, msg)
 end
 
 log(logger.normal, "Loading plugins...")
-local loaded, loadtime = loader.load("plugins.d/*")
+local loaded, loadtime = loader.load(var.root.."/plugins.d/*")
 log(logger.normal, "Done loading "..tostring(loaded).." Plugins. Took "..tostring(loadtime).."s.")

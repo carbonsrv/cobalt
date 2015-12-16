@@ -4,7 +4,7 @@
 cobalt = {}
 cobalt.version = "v0.01"
 
-dofile("banner.lua")
+dofile(var.root.."/banner.lua")
 
 local colors = require("libs.ansicolors")
 
@@ -31,7 +31,7 @@ local function log(level, msg)
 end
 
 logger.log("Main", logger.normal, "Loading Init files...")
-local loaded, loadtime = loader.load("init.d/*")
+local loaded, loadtime = loader.load(var.root.."/init.d/*")
 logger.log("Main", logger.normal, "Loaded "..tostring(loaded).." Init Files. Took "..tostring(loadtime).."s.")
 
 -- Just wait here until we get signaled that we're done.
