@@ -11,9 +11,11 @@ event.handle("irc:privmsg", function(server, from, to, message)
 				thread.spawn(function()
 					rpc = rpc or require("libs.multirpc")
 					local output = io.popen(cmd.." 2>&1"):read("*a")
-					rpc.call("irc.msg", server, sendto, "| "..output:gsub("\n", "\n| "))
+					rpc.call("irc.msg", serv, replyto, "| "..output:gsub("\n$", ""):gsub("\n", "\n| "))
 				end, {
 					cmd = match,
+					serv = server,
+					replyto = sendto
 				})
 			end
 		end)
