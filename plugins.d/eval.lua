@@ -27,4 +27,4 @@ command.add("eval", function(from, args)
 	end
 end, {
 	perms = settings.permissions,
-})
+}, true)

@@ -25,27 +25,60 @@ function _M.start_handler()
 	})
 end
 
-function _M.add(name, func, binds)
-	local args =  {
-		fn = string.dump(func)
-	}
-	if binds then
-		for k, v in pairs(binds) do
-			if k ~= "fn" then
-				args[k] = v
+function _M.add(name, func, binds, spawnthread)
+	if spawnthread then
+		event.handle("chatcmd:"..name, function(replyargs, ...)
+			local targs = {
+				["fn"] = fn,
+				cmdname = cmd_name,
+				call_args = {...},
+				rargs = replyargs,
+			}
+			for k, v in pairs(vars) do
+				if k ~= "fn" and k ~= "cmdname" and k ~= "call_args" and k ~= "rargs" then
+					targs[k] = v
+				end
+			end
+			thread.spawn(function()
+				rpc = require("libs.multirpc")
+				local suc, res = pcall(loadstring(fn), unpack(luar.slice2table(call_args)))
+				if suc then
+					local rpcargs = luar.slice2table(rargs)
+					table.insert(rpcargs, res)
+					rpc.call(unpack(rpcargs))
+				else
+					rpc.call("log.important", "chatcmd:"..cmdname, "Error: "..res)
+				end
+			end, targs)
+		end, {
+			fn=string.dump(func),
+			replargs = replyargs,
+			cmd_name = name,
+			vars = binds or {},
+		})
+	else
+		local args =  {
+			fn = string.dump(func),
+			cmd_name = name,
+		}
+		if binds then
+			for k, v in pairs(binds) do
+				if k ~= "fn" and k ~= "name_of_command" then
+					args[k] = v
+				end
 			end
 		end
+		event.handle("chatcmd:"..name, function(replyargs, ...)
+			cmd_func = cmd_func or loadstring(fn)
+			local suc, res = pcall(cmd_func, ...)
+			if suc then
+				table.insert(replyargs, res)
+				rpc.call(unpack(replyargs))
+			else
+				print("Error: "..res)
+			end
+		end, args)
 	end
-	event.handle("chatcmd:"..name, function(replyargs, ...)
-		cmd_func = cmd_func or loadstring(fn)
-		local suc, res = pcall(cmd_func, ...)
-		if suc then
-			table.insert(replyargs, res)
-			rpc.call(unpack(replyargs))
-		else
-			print("Error: "..res)
-		end
-	end, args)
 end
 
 return _M
