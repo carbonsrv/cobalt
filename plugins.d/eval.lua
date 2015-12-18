@@ -1,34 +1,30 @@
 -- Eval, basic.
 
-event.handle("irc:privmsg", function(server, from, to, message)
-	if (luar.map2table(irc_set[server].permissions))[from] == 3 then
+command.add("eval", function(from, args)
+	if perms[from] == 3 then
 		-- Authorized.
-		message:gsub("^"..irc_set[server].prefix.."eval (.-)$", function(match)
-			if match and match ~= "" then
-				local sender = from:match("^(.-)!")
-				local sendto = sender == irc_set[server].nick and sender or to
-				function print(...)
-					for k, v in pairs({...}) do
-						rpc.call("irc.msg", server, sendto, tostring(v))
-					end
-				end
-				local f, err = loadstring("return "..match)
-				if err then
-					f, err = loadstring(match)
-					if err then
-						rpc.call("irc.msg", server, sendto, "Error: "..err)
-						return
-					end
-				end
-				local suc, res = pcall(f)
-				if suc then
-					rpc.call("irc.msg", server, sendto, "-> "..tostring(res))
-				else
-					rpc.call("irc.msg", server, sendto, "Error: "..res)
-				end
+		local output = ""
+		function print(...)
+			for k, v in pairs({...}) do
+				output = output .. tostring(v) .. "\n"
 			end
-		end)
+		end
+		local f, err = loadstring("return "..args)
+		if err then
+			f, err = loadstring(args)
+			if err then
+				return "Error: "..err
+			end
+		end
+		local suc, res = pcall(f)
+		if suc then
+			return output.. "-> "..tostring(res)
+		else
+			return output.."Error: "..err
+		end
+	else
+		return "How about no?"
 	end
 end, {
-	irc_set = settings.irc,
+	perms = settings.permissions,
 })

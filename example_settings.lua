@@ -1,4 +1,7 @@
 return {
+	permissions = {
+		["vifino!vifino@tty.sh"] = 3,
+	},
 	irc = { -- List your IRC networks here.
 		esper = {
 			proto = "tcp",
@@ -13,10 +16,6 @@ return {
 
 			channels = {
 				"#V"
-			},
-
-			permissions = {
-				["vifino!vifino@tty.sh"] = 3,
 			}
 		}
 	}
