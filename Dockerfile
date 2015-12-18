@@ -14,5 +14,5 @@ WORKDIR /pwd
 COPY . /cobalt
 
 # Run cobalt
-ENTRYPOINT ["/go/bin/carbon", "-root=/cobalt", "-config=/cobalt/cobalt.conf", "/cobalt/cobalt.lua"]
+ENTRYPOINT ["/usr/bin/carbon", "-root=/cobalt", "-config=/cobalt/cobalt.conf", "/cobalt/cobalt.lua"]
 CMD ["settings.lua"]
