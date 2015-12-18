@@ -15,10 +15,6 @@ return {
 				"#V"
 			},
 
-			log_output = {
-				"#yourchannel"
-			},
-
 			permissions = {
 				["vifino!vifino@tty.sh"] = 3,
 			}
