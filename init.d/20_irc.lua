@@ -61,6 +61,8 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 				conn = kvstore.get("irc:conn_"..short_name) -- Get the connection, but repeat if we fail.
 			end
 			net.write(conn, line.."\r\n")
+			-- Rate Limiting(tm)
+			os.sleep(0.1)
 		end, {
 			["short_name"] = name
 		})
