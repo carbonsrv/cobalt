@@ -1,6 +1,6 @@
 -- Run Shell commands.
 
-command.add("sh", function(from, args)
+command.add("sh", function(from, chan, args)
 	if perms[from] == 3 then
 		-- Authorized.
 			local output = io.popen(args.." 2>&1"):read("*a")

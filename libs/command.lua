@@ -11,7 +11,7 @@ function _M.start_handler()
 				-- Arguments
 				local replyargs = {"irc.msg", server, sendto}
 
-				event.fire("chatcmd:"..cmd, replyargs, from, match)
+				event.fire("chatcmd:"..cmd, replyargs, from, sendto, match)
 
 				return ""
 			end

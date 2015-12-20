@@ -1,6 +1,10 @@
 -- Eval, basic.
 
-command.add("eval", function(from, args)
+command.add("eval", function(from, chan, args)
+	command = require("libs.command")
+	event = require("libs.event")
+	rpc = require("libs.multirpc")
+	
 	if perms[from] == 3 then
 		-- Authorized.
 		local output = ""
@@ -20,7 +24,7 @@ command.add("eval", function(from, args)
 		if suc then
 			return output.. "-> "..tostring(res)
 		else
-			return output.."Error: "..err
+			return output.."Error: "..res
 		end
 	else
 		return "How about no?"
