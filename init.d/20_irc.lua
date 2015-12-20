@@ -62,7 +62,7 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 			end
 			net.write(conn, line.."\r\n")
 			-- Rate Limiting(tm)
-			os.sleep(0.2)
+			os.sleep(0.3)
 		end, {
 			["short_name"] = name
 		})
