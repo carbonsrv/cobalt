@@ -53,6 +53,20 @@ local asciicake = replace([[
 	["#"] = C.bold .. C.white .. "%%" ..C.reset
 })
 
+-- PIE!
+local asciipie = replace([[
+         (
+          )
+     __..---..__
+ ,-='  /  |  \  `=-.
+:--..___________..--;
+ \.,_____________,./
+]], {
+	["\\/|"] = C.red .. "%%" .. C.reset,
+	[".,-=_'`:;"] = C.brown .. "%%" .. C.reset,
+	["()"] = C.grey .. "%%" .. C.reset,
+})
+
 -- Rat!
 local asciirat = replace([[
 (^)___(^)
@@ -73,6 +87,19 @@ local asciideadrat = asciirat:gsub("O", "X")
 -- Binary
 local asciibinary = C.green.."01001000011001010111100100101110"..C.reset
 
+-- Heart! For you, Lizzy :3
+local asciiheart = replace([[
+ .:::.   .:::.
+:::::::.:::::::
+:::::::::::::::
+':::::::::::::'
+  ':::::::::'
+    ':::::'
+      ':'
+]], {
+	[".:'"] = C.red.."%%"..C.reset
+})
+
 -- Make the spam table!
 local spamtable = {
 	bull = asciibull,
@@ -80,15 +107,20 @@ local spamtable = {
 	pangu = asciicake,
 	cake = asciicake,
 
+	pie = asciipie,
+
 	rat = asciirat,
 	deadrat = asciideadrat,
 	ratbot = asciirat,
 
 	binary = asciibinary,
+
+	heart = asciiheart,
+	lizzy = asciiheart
 }
 
 command.add("spam", function(from, chan, msg)
-	return spam[msg] or "No such spaaam?!? :<"
+	return spam[string.lower(msg)] or "No such spaaam?!? :<"
 end, {
 	spam = spamtable
 })
