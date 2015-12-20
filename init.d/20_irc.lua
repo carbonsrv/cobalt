@@ -58,11 +58,13 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 
 		event.handle("irc:send_"..name, function(line)
 			if not conn then
-				conn = kvstore.get("irc:conn_"..short_name) -- Get the connection, but repeat if we fail.
+				conn = kvstore.get("irc:conn_"..short_name) -- Get the connection
 			end
-			net.write(conn, line.."\r\n")
-			-- Rate Limiting(tm)
-			os.sleep(0.3)
+			if line and line ~= "" then
+				net.write(conn, line.."\r\n")
+				-- Rate Limiting(tm)
+				os.sleep(0.3)
+			end
 		end, {
 			["short_name"] = name
 		})
@@ -123,7 +125,9 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 		event = event or require("libs.event")
 		local msg = msg .. "\n"
 		for m in msg:gmatch("(.-)\n") do
-			event.fire("irc:send", server, "PRIVMSG "..to.." :"..m)
+			if m and m ~= "" then
+				event.fire("irc:send", server, "PRIVMSG "..to.." :"..m)
+			end
 		end
 	end)
 

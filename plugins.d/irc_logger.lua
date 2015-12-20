@@ -42,9 +42,28 @@ event.handle("irc:part", function(server, prefix, chan)
 	rpc.call("log.normal", server, colors.blue..prefix..colors.reset.." has left "..colors.red..chan..colors.reset)
 end)
 
+event.handle("irc:kick", function(server, prefix, chan, user, kickmsg)
+	colors = colors or require("libs.ansicolors")
+	rpc.call("log.normal", server, colors.blue..prefix..colors.reset.." got kicked from "..colors.red..chan..colors.reset.." by "..colors.red..user..colors.reset..": "..kickmsg)
+end)
+
+event.handle("irc:quit", function(server, prefix, quitmsg)
+	colors = colors or require("libs.ansicolors")
+	rpc.call("log.normal", server, colors.blue..prefix..colors.reset.." has "..colors.red.."quit"..colors.reset.." IRC: "..quitmsg)
+end)
+
 event.handle("irc:nick", function(server, prefix, name)
 	colors = colors or require("libs.ansicolors")
 	rpc.call("log.normal", server, colors.blue..prefix..colors.reset.." is now known as "..colors.bright..colors.blue..name..colors.reset)
+end)
+
+event.handle("irc:mode", function(server, prefix, chan, mode, ...)
+	colors = colors or require("libs.ansicolors")
+	local remaining = ""
+	for k, v in pairs({...}) do
+		remaining = remaining .. " " .. v
+	end
+	rpc.call("log.normal", server, colors.blue..prefix..colors.reset.." in "..colors.red..chan..colors.reset.." set mode "..colors.red..mode..colors.blue..remaining..colors.reset)
 end)
 
 event.handle("irc:event", function(server, message, prefix, command, chan, data)
@@ -61,6 +80,9 @@ end, {
 		["332"] = true,
 		["JOIN"] = true,
 		["PART"] = true,
+		["KICK"] = true,
+		["QUIT"] = true,
 		["NICK"] = true,
+		["MODE"] = true,
 	}
 })

@@ -5,6 +5,7 @@ return {
 	reset      = "\x0F",
 
 	-- misc
+	escape    = c,
 	bold      = "\x02",
 	italic    = "\x1D",
 	underline = "\x1F",

@@ -3,15 +3,7 @@
 local irccolors = require("libs.irccolors")
 local C = irccolors
 
-local asciibull = [[
-(___)
-(o o)_____/
- @@ `     \
-  \ ____, /
-  //    //
- ^^    ^^
-]]
-
+-- The logic behind the color replacement and stuff
 local function replace(str, chars, replacement)
 	if type(chars) == "table" then
 		local r = str
@@ -32,41 +24,71 @@ local function replace(str, chars, replacement)
 	end
 end
 
-local asciibull = replace(asciibull, {
+-- Bull!
+local asciibull = replace([[
+(___)
+(o o)_____/
+ @@ `     \
+  \ ____, /
+  //    //
+ ^^    ^^
+]], {
 	["o"] = C.bold .. C.red .. "%%" .. C.reset,
 	["()^"] = C.bold .. C.white .. "%%" .. C.reset,
 	["_/\\`,"] = C.brown .. "%%" .. C.reset,
 	["@"] = C.red .. "%%" .. C.reset
 })
 
-command.add("bull", function()
-	return bull
-end, {
-	bull = asciibull
-})
-
-
-local asciicake = [[
+-- Cake!
+local asciicake = replace([[
+  *  *  *  *
  _I__I__I__I_
 (____________)
 |############|
 (____________)
-]]
-
-local asciicake = replace(asciicake, {
+]], {
 	["I"] = C.yellow .. "%%" ..C.reset,
 	["_()|"] = C.bold .. C.red .. "%%" ..C.reset,
-	["#"] = C.bold .. C.white .. "%%" ..C.reset,
+	["*"] = C.red .. "%%" .. C.reset,
+	["#"] = C.bold .. C.white .. "%%" ..C.reset
 })
 
-command.add("cake", function()
-	return cake
-end, {
-	cake = asciicake
+-- Rat!
+local asciirat = replace([[
+(^)___(^)
+ (O   O)
+  \   /
+  >\ /<
+    *
+]], {
+	["\\/_()"] = C.grey .. "%%" .. C.reset,
+	["><"] = C.bold .. C.black .. "%%" .. C.reset,
+	["*"] = C.bold .. C.pink .. "%%" .. C.reset,
+	["^"] = C.pink .. "%%" .. C.reset,
+	["O"] = C.bold .. C.white .. "%%" .. C.reset
 })
 
-command.add("pangu", function()
-	return cake
+local asciideadrat = asciirat:gsub("O", "X")
+
+-- Binary
+local asciibinary = C.green.."01001000011001010111100100101110"..C.reset
+
+-- Make the spam table!
+local spamtable = {
+	bull = asciibull,
+
+	pangu = asciicake,
+	cake = asciicake,
+
+	rat = asciirat,
+	deadrat = asciideadrat,
+	ratbot = asciirat,
+
+	binary = asciibinary,
+}
+
+command.add("spam", function(from, chan, msg)
+	return spam[msg] or "No such spaaam?!? :<"
 end, {
-	cake = asciicake
+	spam = spamtable
 })
