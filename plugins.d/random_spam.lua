@@ -119,8 +119,21 @@ local spamtable = {
 	lizzy = asciiheart
 }
 
+local spamkeys = {}
+local spamlist = ""
+for k, _ in pairs(spamtable) do
+	table.insert(spamkeys, k)
+	spamlist = spamlist .. k .. " "
+end
+
 command.add("spam", function(from, chan, msg)
-	return spam[string.lower(msg)] or "No such spaaam?!? :<"
+	if msg then
+		return spam[string.lower(msg)] or "No such spaaam?!? :<"
+	else
+		return "Available spam: " .. list
+	end
 end, {
-	spam = spamtable
+	spam = spamtable,
+	available = spamkeys,
+	list = spamlist
 })
