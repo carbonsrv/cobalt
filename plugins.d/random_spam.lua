@@ -100,6 +100,65 @@ local asciiheart = replace([[
 	[".:'"] = C.red.."%%"..C.reset
 })
 
+-- Apple
+local asciiapple = replace([[
+        .:'
+    __ :'__
+ .'`  `-'  ``.
+:             :
+:             :
+ :           :
+  `.__.-.__.'
+]], {
+	["._-':;`"] = C.red .. "%%" .. C.reset,
+})
+
+-- Champagne
+local asciimartini = replace([[
+    .
+  o  .
+  . o
+_______
+\~~~~°/
+ '-v-'
+   |
+  _|_
+ `"""`
+]], {
+	["~.o"] = C.yellow .. "%%" .. C.reset,
+	["_|`\",'-v\\/"] = C.royalblue .. "%%" .. C.reset
+}):gsub("°", C.green.."°"..C.reset)
+
+-- Coffee! =.=
+local asciicoffee = [[
+        (
+         )
+   ,.----------.
+ ((|            |
+ .--\          /--.
+'._  '========'  _.'
+   `""""""""""""`
+]]
+
+-- Bills
+local asciibills = {
+	["1$"] = C.green.."[̲̅$̲̅(̲̅1̲̅)̲̅$̲̅]"..C.reset,
+	["5$"] = C.green.."[̲̅$̲̅(̲̅5)̲̅$̲̅]"..C.reset,
+	["100$"] = C.green.."[̲̅$̲̅(̲̅ιοο̲̅)̲̅$̲̅]"..C.reset,
+	["200$"] = C.green.."[̲̅$̲̅(̲̅2οο̲̅)̲̅$̲̅]"..C.reset,
+}
+
+-- emotes
+local emotes = {
+	yuno = "ლ(ಠ益ಠლ)",
+	lenny = "( ͡° ͜ʖ ͡°)",
+	pedo = "ᶘ ᵒᴥᵒᶅ",
+	killerpedo = (C.bold..C.grey.."ᶘ ᵒᴥᵒᶅ"..C.reset):gsub("ᵒ", C.red.."ᵒ"..C.grey),
+	cool = "(⌐■_■)",
+	supercool = ("(⌐■_■)"):gsub("■", C.bold..C.yellow.."■"..C.reset)
+}
+
+-- Database-like index.
 -- Make the spam table!
 local spamtable = {
 	bull = asciibull,
@@ -116,9 +175,23 @@ local spamtable = {
 	binary = asciibinary,
 
 	heart = asciiheart,
-	lizzy = asciiheart
+	lizzy = asciiheart,
+
+	apple = asciiapple,
+
+	martini = asciimartini,
+
+	coffee = asciicoffee,
 }
 
+for k, v in pairs(asciibills) do
+	spamtable[k] = v
+end
+for k, v in pairs(emotes) do
+	spamtable[k] = v
+end
+
+-- Logic part.
 local spamkeys = {}
 local spamlist = ""
 for k, _ in pairs(spamtable) do
@@ -128,7 +201,7 @@ end
 
 command.add("spam", function(from, chan, msg)
 	if msg then
-		return spam[string.lower(msg)] or "No such spaaam?!? :<"
+		return spam[string.lower(msg)] or "Ain't no spam like dat. Check your spamledge."
 	else
 		return "Available spam: " .. list
 	end

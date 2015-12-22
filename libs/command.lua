@@ -25,7 +25,7 @@ function _M.start_handler()
 	})
 end
 
-function _M.add(name, func, binds, spawnthread)
+function _M.add(name, func, binds, spawnthread, buffer)
 	if spawnthread then
 		event.handle("chatcmd:"..name, function(replyargs, ...)
 			local targs = {
@@ -55,7 +55,7 @@ function _M.add(name, func, binds, spawnthread)
 			replargs = replyargs,
 			cmd_name = name,
 			vars = binds or {},
-		})
+		}, buffer)
 	else
 		local args =  {
 			fn = string.dump(func),
@@ -77,7 +77,7 @@ function _M.add(name, func, binds, spawnthread)
 			else
 				print("Error: "..res)
 			end
-		end, args)
+		end, args, buffer)
 	end
 end
 

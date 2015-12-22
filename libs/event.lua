@@ -5,7 +5,7 @@ local _M = {}
 local msgpack = require("msgpack")
 local pubsub = require("libs.pubsub")
 
-function _M.handle(name, func, bindings)
+function _M.handle(name, func, bindings, buffer)
 	local binds = {
 		f = string.dump(func),
 		event_name = name
@@ -37,7 +37,7 @@ function _M.handle(name, func, bindings)
 				rpc.call("log.critical", state_name, err)
 			end
 		end
-	end, binds)
+	end, binds, buffer)
 end
 
 function _M.netdial(in_name, out_name, proto, addr)

@@ -67,7 +67,7 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 			end
 		end, {
 			["short_name"] = name
-		})
+		}, 1024)
 
 		-- The below breaks cobalt, sadly.
 		--[[event.handle("irc:finished_init", function(server_name)
@@ -119,7 +119,7 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 	rpc.command("irc.send", function(server, line) -- throw the messages in the parser!
 		event = event or require("libs.event")
 		event.fire("irc:send", server, line)
-	end)
+	end, nil, 1024)
 
 	rpc.command("irc.msg", function(server, to, msg)
 		event = event or require("libs.event")
@@ -127,6 +127,8 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 		for m in msg:gmatch("(.-)\n") do
 			if m and m ~= "" then
 				event.fire("irc:send", server, "PRIVMSG "..to.." :"..m)
+				-- Rate Limiting(tm)
+				os.sleep(0.3)
 			end
 		end
 	end)
