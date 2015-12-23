@@ -8,3 +8,9 @@ command.add("wq", function(from, chan, args)
 end, {
 	perms = settings.permissions,
 })
+
+command.add("perms", function(from, chan, args)
+	return "You have a permission level of " .. tostring(perms[from] or 0) .."."
+end, {
+	perms = settings.permissions,
+})
