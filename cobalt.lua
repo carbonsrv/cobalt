@@ -25,6 +25,7 @@ end
 thread = require("thread")
 logger = require("libs.logger")
 loader = require("libs.loader")
+msgpack = require("msgpack")
 
 local function log(level, msg)
 	rpc.call("log", "Main", level, msg)
@@ -39,10 +40,10 @@ logger.log("Main", logger.normal, "Loaded "..tostring(loaded).." Init Files. Too
 local quitcom = com.create()
 pubsub.sub("cmd:cobalt.exit", quitcom)
 
-local status = com.receive(quitcom)
+local status = msgpack.unpack(com.receive(quitcom))
 log(logger.important, "Shutting down...")
 
 -- TODO: Replace with proper shutdown stub.
-os.sleep(5) -- Let cleanup and stuff happen.
+os.sleep(1) -- Let cleanup and stuff happen.
 log(logger.important, "Goodbye!")
-os.exit(status or 0)
+os.exit(status[1] or 0)
