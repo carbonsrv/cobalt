@@ -4,7 +4,10 @@ command.add("eval", function(from, chan, args)
 	command = require("libs.command")
 	event = require("libs.event")
 	rpc = require("libs.multirpc")
-	
+	serialize = require("serialize")
+	msgpack = require("msgpack")
+	settings = msgpack.unpack(settings_packed)
+
 	if perms[from] == 3 then
 		-- Authorized.
 		local output = ""
@@ -22,7 +25,7 @@ command.add("eval", function(from, chan, args)
 		end
 		local suc, res = pcall(f)
 		if suc then
-			return output.. "-> "..tostring(res)
+			return output.. "-> "..serialize.simple(res)
 		else
 			return output.."Error: "..res
 		end
@@ -31,4 +34,5 @@ command.add("eval", function(from, chan, args)
 	end
 end, {
 	perms = settings.permissions,
+	settings_packed = msgpack.pack(settings)
 }, true)
