@@ -200,10 +200,14 @@ for k, _ in pairs(spamtable) do
 end
 
 command.add("spam", function(from, chan, msg)
-	if msg and (perms[from] or 0) >= 1 then
-		return spam[string.lower(msg)] or "Ain't no spam like dat. Check your spamledge."
+	if (perms[from] or 0) >= 1 then
+		if msg then
+			return spam[string.lower(msg)] or "Ain't no spam like dat. Check your spamledge."
+		else
+			return "Available spam: " .. list
+		end
 	else
-		return "Available spam: " .. list
+		return "Bruh, you ain't got the spam privilege."
 	end
 end, {
 	spam = spamtable,
