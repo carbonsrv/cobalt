@@ -135,7 +135,7 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 
 	rpc.command("irc.action", function(server, chan, text) -- throw the messages in the parser!
 		event = event or require("libs.event")
-		event.fire("irc:send", server, "PRIVMSG #V :\1ACTION "..(text or "").."\1")
+		event.fire("irc:send", server, "PRIVMSG "..chan.." :\1ACTION "..(text or "").."\1")
 	end)
 
 end
