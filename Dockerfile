@@ -2,7 +2,7 @@
 # Cobalt Dockerfile #
 #####################
 
-FROM carbonsrv/carbon:v1.2.1
+FROM carbonsrv/carbon
 
 MAINTAINER Adrian "vifino" Pistol
 
