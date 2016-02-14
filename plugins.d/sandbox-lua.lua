@@ -1,5 +1,6 @@
 -- Lua Sandbox.
 command.add("lua", function(from, chan, args)
+	if not args then return "nil" end
 	jit.off()
 	local f = function()
 		local function maxval(tbl)

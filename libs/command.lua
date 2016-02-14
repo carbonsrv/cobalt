@@ -6,7 +6,7 @@ function _M.start_handler()
 		local handler = function(cmd, match)
 			if cmd and cmd ~= "" then
 				local sender = from:match("^(.-)!")
-				local sendto = sender == irc_set[server].nick and sender or to
+				local sendto = to == irc_set[server].nick and sender or to
 
 				-- Arguments
 				local replyargs = {"irc.msg", server, sendto}
