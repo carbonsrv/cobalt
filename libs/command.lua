@@ -41,9 +41,9 @@ function _M.add(name, func, binds, spawnthread, buffer)
 			end
 			thread.spawn(function()
 				rpc = require("libs.multirpc")
-				local suc, res = pcall(loadstring(fn), unpack(luar.slice2table(call_args)))
+				local suc, res = pcall(loadstring(fn), unpack(call_args))
 				if suc then
-					local rpcargs = luar.slice2table(rargs)
+					local rpcargs = rargs
 					table.insert(rpcargs, res)
 					rpc.call(unpack(rpcargs))
 				else

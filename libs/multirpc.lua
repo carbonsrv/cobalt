@@ -2,8 +2,8 @@
 
 local _M = {}
 
-local msgpack = require("msgpack")
-local pubsub = require("libs.pubsub")
+msgpack = require("msgpack")
+pubsub = require("libs.pubsub")
 
 function _M.command(name, func, bindings, buffer)
 	local binds = {

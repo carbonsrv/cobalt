@@ -4,7 +4,7 @@
 local _M = {}
 
 thread = require("thread")
-local msgpack = require("msgpack")
+msgpack = require("msgpack")
 
 _M.dispatcher = kvstore.get("dispatcher_thread") or thread.spawn(function()
 	local logger = require("libs.logger")

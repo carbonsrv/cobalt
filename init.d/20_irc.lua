@@ -1,19 +1,18 @@
 -- IRC!
 
-local thread = require("thread")
-local logger = require("libs.logger")
-local event = require("libs.event")
+thread = require("thread")
+logger = require("libs.logger")
+event = require("libs.event")
 
 if settings.irc then -- Only continue if there are actually IRC Servers in the config.
 	event.handle("irc:send", function(name, line) -- Easy hook for message sending: event.fire("irc:send", "esper", "NICK Cobalt")
-		event = event or require("libs.event")
+		event = require("libs.event")
 		event.fire("irc:send_"..name, line)
 	end)
 
-
 	event.handle("irc:new_conn", function(server_name) -- Handle new connections
 		-- TODO: Replace stub.
-		event = event or require("libs.event")
+		event = require("libs.event")
 		event.fire("irc:send_".. server_name, "NICK "..irc_set[server_name].nick)
 		event.fire("irc:send_".. server_name, "USER "..irc_set[server_name].user.." ~ ~ :"..irc_set[server_name].real)
 
@@ -23,10 +22,10 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 	})
 
 	event.handle("irc:finished_init", function(server_name) -- Handle finished connections
-		event = event or require("libs.event")
+		event = require("libs.event")
 		os.sleep(10)
 
-		for n, chan in pairs(luar.slice2table(irc_set[server_name].channels)) do
+		for n, chan in pairs(irc_set[server_name].channels) do
 			os.sleep(0.5)
 			event.fire("irc:send_"..server_name, "JOIN "..chan)
 		end
@@ -38,7 +37,7 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 		--logger = logger or require("libs.logger")
 		--rpc.call("log", "irc:"..server_name, logger.normal, line)
 
-		event = event or require("libs.event")
+		event = require("libs.event")
 		if line:match("^PING") then
 			event.fire("irc:send", server_name, line:gsub("^PING", "PONG"))
 		end
@@ -92,7 +91,7 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 		os.sleep(0.5)
 
 		thread.spawn(function() -- The receiving part, fires event irc:raw.
-			local event = require("libs.event")
+			event = require("libs.event")
 
 			conn = kvstore.get("irc:conn_"..short_name) -- Get the connection.
 			event.fire("irc:new_conn", short_name) -- Fire the init event.
@@ -112,17 +111,17 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 	end
 
 	event.handle("irc:raw", function(server, line) -- throw the messages in the parser!
-		irc = irc or require("libs.irc")
+		irc = require("libs.irc")
 		irc.event_parse(server, line)
 	end)
 
 	rpc.command("irc.send", function(server, line) -- throw the messages in the parser!
-		event = event or require("libs.event")
+		event = require("libs.event")
 		event.fire("irc:send_"..server, line)
 	end, nil, 1024)
 
 	rpc.command("irc.msg", function(server, to, msg)
-		event = event or require("libs.event")
+		event = require("libs.event")
 		local msg = msg .. "\n"
 		for m in msg:gmatch("(.-)\n") do
 			if m and m ~= "" then
@@ -134,7 +133,7 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 	end)
 
 	rpc.command("irc.action", function(server, chan, text) -- throw the messages in the parser!
-		event = event or require("libs.event")
+		event = require("libs.event")
 		event.fire("irc:send", server, "PRIVMSG "..chan.." :\1ACTION "..(text or "").."\1")
 	end)
 
