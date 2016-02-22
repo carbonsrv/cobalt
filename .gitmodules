@@ -1,0 +1,4 @@
+[submodule "libs/luaforth"]
+	path = libs/luaforth
+	url = https://github.com/vifino/luaforth
+	branch = master
