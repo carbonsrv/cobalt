@@ -137,6 +137,38 @@ _M.eval = function(txt, extravals)
 	if not func then
 		func, err = loadstring(txt, "=lua")
 		if not func then
+			return nil, err:gsub("^[\r\n]+", ""):gsub("[\r\n]+$", ""):gsub("[\r\n]+", " | "):sub(1,440)
+		end
+	end
+	local func = coroutine.create(setfenv(func, sbox))
+	debug.sethook(func, function()
+		debug.sethook(func)
+		debug.sethook(func, function()
+			error("Error: Took too long.", 0)
+		end, "", 1)
+		error("Error: Took too long.", 0)
+	end, "", 20000)
+	local res = {coroutine.resume(func)}
+	if jit then
+		jit.on()
+	end
+	return res
+end
+
+_M.eval_textres = function(txt, extravals)
+	out = ""
+	if extravals then
+		for k, v in pairs(extravals) do
+			sbox[k] = v
+		end
+	end
+	if jit then
+		jit.off()
+	end
+	local func, err = loadstring("return " .. txt, "=lua")
+	if not func then
+		func, err = loadstring(txt, "=lua")
+		if not func then
 			return err:gsub("^[\r\n]+", ""):gsub("[\r\n]+$", ""):gsub("[\r\n]+", " | "):sub(1,440)
 		end
 	end
@@ -158,5 +190,6 @@ _M.eval = function(txt, extravals)
 	end
 	return string.gsub(out .. (o or "nil"), "[\r\n]+$", "")
 end
+
 
 return _M

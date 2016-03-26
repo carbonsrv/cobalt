@@ -6,7 +6,7 @@ command.add("lua", function(from, chan, args)
 		["from"] = from,
 		["chan"] = chan
 	}
-	local success, retval = pcall(sbx.eval, args, extra)
+	local success, retval = pcall(sbx.eval_textres, args, extra)
 	if not success then
 		return "> " .. retval:gsub("^[\r\n]+", ""):gsub("[\r\n]+$", ""):gsub("[\r\n]+", " | "):sub(1,440)
 	else
