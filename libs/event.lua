@@ -3,7 +3,7 @@
 local _M = {}
 
 msgpack = require("msgpack")
-pubsub = require("libs.pubsub")
+pubsub = require("pubsub")
 
 function _M.handle(name, func, bindings, buffer)
 	local binds = {
@@ -38,6 +38,19 @@ function _M.handle(name, func, bindings, buffer)
 			end
 		end
 	end, binds, buffer)
+end
+
+function _M.listen(name) -- ltn12 compatible listener
+	local retcom = com.create()
+	pubsub.sub("event:"..name, retcom)
+	return function()
+		local src = com.receive(retcom)
+		if src then
+			return msgpack.unpack(src)
+		else
+			return nil
+		end
+	end
 end
 
 function _M.netdial(in_name, out_name, proto, addr)
