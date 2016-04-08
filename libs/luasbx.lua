@@ -30,7 +30,7 @@ function _M.reset()
 		getmetatable = getmetatable,
 		ipairs = ipairs,
 		loadstring = function(txt, name)
-			if txt:sub(1,1) == "\27" then
+			if string.sub (txt, 1, 1) == "\27" then
 				return false, "Nope."
 			end
 			local func,err = loadstring(txt, name)
