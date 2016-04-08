@@ -1,16 +1,6 @@
 local sbox, usr, out
 local _M = {}
 
-local function maxval(tbl)
-	local mx = 0
-	for k, v in pairs(tbl) do
-		if type(k) == "number" then
-			mx = math.max(k,mx)
-		end
-	end
-	return mx
-end
-
 function _M.reset()
 	local tsbox = {}
 	sbox = {
@@ -27,7 +17,10 @@ function _M.reset()
 			end
 			return res
 		end,
-		getmetatable = getmetatable,
+		getmetatable = function (v)
+			assert (type(v)~="string", "No string metatable for you!")
+			return getmetatable (v)
+		end,
 		ipairs = ipairs,
 		loadstring = function(txt, name)
 			if string.sub (txt, 1, 1) == "\27" then
@@ -46,7 +39,7 @@ function _M.reset()
 			for k, v in pairs({...}) do
 				newt[k] = tostring(v)
 			end
-			out=out .. tostring(table.concat(newt, " ")) .. "\n"
+			out=out .. table.concat(newt, " ") .. "\n"
 		end,
 		select = select,
 		setfenv = function(func,env)
@@ -80,19 +73,19 @@ function _M.reset()
 		},
 		io = {
 			write = function(...)
-				out = out..table.concat({...})
+				out = out .. table.concat ({...})
 			end,
 		},
-		coroutine = coroutine,
 		channel = "",
 		nick = "",
 		pcall = pcall,
 		username = username,
-		string=string,
 	}
 	for k, v in pairs({
 		math = math,
-		table = table
+		table = table,
+		string = string,
+		coroutine = coroutine
 	})
 	do
 		sbox[k] = {}
