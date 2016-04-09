@@ -45,7 +45,10 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 		irc_set = settings.irc
 	})
 
-	local length = #settings.irc
+	local length = 0
+	for _ in pairs(settings.irc) do
+		length = length + 1
+	end
 	local i = 0
 
 	for name, data in pairs(settings.irc) do -- Loop through servers
@@ -95,13 +98,21 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 
 			conn = kvstore.get("irc:conn_"..short_name) -- Get the connection.
 			event.fire("irc:new_conn", short_name) -- Fire the init event.
+
+			local buff = ""
 			while true do
-				local line, err = net.readline(conn)
+				local txt, err = net.read(conn, 1)
 				if err == "EOF" then
 					event.fire("irc:eof", short_name)
 					break -- Should handle it better, I think.
 				else
-					event.fire("irc:raw", short_name, line:sub(1, -3))
+					local tmp = (buff .. txt)
+					buff = string.gsub(tmp, "(.-)[\r\n]", function(line)
+						if line ~= "" then
+							event.fire("irc:raw", short_name, line)
+						end
+						return ""
+					end)
 				end
 			end
 		end, {

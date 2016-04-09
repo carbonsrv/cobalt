@@ -63,7 +63,12 @@ event.handle("irc:mode", function(server, prefix, chan, mode, ...)
 	for k, v in pairs({...}) do
 		remaining = remaining .. " " .. v
 	end
-	rpc.call("log.normal", server, colors.blue..prefix..colors.reset.." in "..colors.red..chan..colors.reset.." set mode "..colors.red..mode..colors.blue..remaining..colors.reset)
+	if chan == prefix then
+		-- Initial mode set
+		rpc.call("log.normal", server, colors.blue..prefix..colors.reset.." sets user mode "..colors.red..mode..colors.blue..remaining..colors.reset)
+	else
+		rpc.call("log.normal", server, colors.blue..prefix..colors.reset.." in "..colors.red..chan..colors.reset.." set mode "..colors.red..mode..colors.blue..remaining..colors.reset)
+	end
 end)
 
 event.handle("irc:event", function(server, message, prefix, command, chan, data)

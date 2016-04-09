@@ -34,7 +34,7 @@ function _M.handle(name, func, bindings, buffer)
 			end
 			local suc, err = pcall(func, unpack(args))
 			if not suc then
-				rpc.call("log.critical", state_name, "(╯°□°）╯︵ ┻━┻: "..err)
+				rpc.call("log.critical", event_name, "(╯°□°）╯︵ ┻━┻: "..err)
 			end
 		end
 	end, binds, buffer)
