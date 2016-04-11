@@ -10,6 +10,11 @@ command.add("eval", function(from, chan, args)
 
 	if perms[from] == 3 then
 		-- Authorized.
+
+		if not args then
+			return "Usage: eval <lua code>"
+		end
+
 		local output = ""
 		function print(...)
 			for k, v in pairs({...}) do

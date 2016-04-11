@@ -54,71 +54,75 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 	for name, data in pairs(settings.irc) do -- Loop through servers
 		i = i + 1
 		rpc.call("log.normal", "IRC", "("..tostring(i).."/"..tostring(length)..") Connecting to "..name.."...")
-		local conn = net.dial(data.proto or "tcp", data.address..":"..tostring(data.port)) -- Connect
-		kvstore.set("irc:conn_"..name, conn)
-		net.write(conn, "") -- Just to initialize.
+		local conn, err = net.dial(data.proto or "tcp", data.address..":"..tostring(data.port)) -- Connect
+		if conn then
+			kvstore.set("irc:conn_"..name, conn)
+			net.write(conn, "") -- Just to initialize.
 
-		event.handle("irc:send_"..name, function(line)
-			if not conn then
-				conn = kvstore.get("irc:conn_"..short_name) -- Get the connection
-			end
-			if line and line ~= "" then
-				net.write(conn, line.."\r\n")
-				-- Rate Limiting(tm)
-				os.sleep(0.3)
-			end
-		end, {
-			["short_name"] = name
-		}, 1024)
-
-		-- The below breaks cobalt, sadly.
-		--[[event.handle("irc:finished_init", function(server_name)
-			if server_name == identifier then
-				rpc.command("log", function(phonetic_name, level, message)
-					if level <= logger.important then
-						for n, chan in pairs(list) do
-							event.fire("print", "irc:send_"..identifier, "PRIVMSG "..chan.." :["..phonetic_name.."]> " .. ((level == 3 and "\x034") or (level == 2 and "\x0315")) .. message .. "\x0f")
-							event.fire("irc:send_"..identifier, "PRIVMSG "..chan.." :["..phonetic_name.."]> " .. ((level == 3 and "\x034") or (level == 2 and "\x0315")) .. message .. "\x0f")
-						end
-					end
-				end, {
-					["identifier"] = name,
-					["list"] = list,
-				})
-			end
-		end, {
-			["identifier"] = name,
-			["list"] = settings.irc[name].log_output,
-		})]]
-
-		os.sleep(0.5)
-
-		thread.spawn(function() -- The receiving part, fires event irc:raw.
-			event = require("libs.event")
-
-			conn = kvstore.get("irc:conn_"..short_name) -- Get the connection.
-			event.fire("irc:new_conn", short_name) -- Fire the init event.
-
-			local buff = ""
-			while true do
-				local txt, err = net.read(conn, 1)
-				if err == "EOF" then
-					event.fire("irc:eof", short_name)
-					break -- Should handle it better, I think.
-				else
-					local tmp = (buff .. txt)
-					buff = string.gsub(tmp, "(.-)[\r\n]", function(line)
-						if line ~= "" then
-							event.fire("irc:raw", short_name, line)
-						end
-						return ""
-					end)
+			event.handle("irc:send_"..name, function(line)
+				if not conn then
+					conn = kvstore.get("irc:conn_"..short_name) -- Get the connection
 				end
-			end
-		end, {
-			["short_name"] = name
-		})
-		rpc.call("log.normal", "IRC", "Connected to "..name..".")
+				if line and line ~= "" then
+					net.write(conn, line.."\r\n")
+					-- Rate Limiting(tm)
+					os.sleep(0.3)
+				end
+			end, {
+				["short_name"] = name
+			}, 1024)
+
+			-- The below breaks cobalt, sadly.
+			--[[event.handle("irc:finished_init", function(server_name)
+				if server_name == identifier then
+					rpc.command("log", function(phonetic_name, level, message)
+						if level <= logger.important then
+							for n, chan in pairs(list) do
+								event.fire("print", "irc:send_"..identifier, "PRIVMSG "..chan.." :["..phonetic_name.."]> " .. ((level == 3 and "\x034") or (level == 2 and "\x0315")) .. message .. "\x0f")
+								event.fire("irc:send_"..identifier, "PRIVMSG "..chan.." :["..phonetic_name.."]> " .. ((level == 3 and "\x034") or (level == 2 and "\x0315")) .. message .. "\x0f")
+							end
+						end
+					end, {
+						["identifier"] = name,
+						["list"] = list,
+					})
+				end
+			end, {
+				["identifier"] = name,
+				["list"] = settings.irc[name].log_output,
+			})]]
+
+			os.sleep(0.5)
+
+			thread.spawn(function() -- The receiving part, fires event irc:raw.
+				event = require("libs.event")
+
+				conn = kvstore.get("irc:conn_"..short_name) -- Get the connection.
+				event.fire("irc:new_conn", short_name) -- Fire the init event.
+
+				local buff = ""
+				while true do
+					local txt, err = net.read(conn, 1)
+					if err == "EOF" then
+						event.fire("irc:eof", short_name)
+						break -- Should handle it better, I think.
+					else
+						local tmp = (buff .. txt)
+						buff = string.gsub(tmp, "(.-)[\r\n]", function(line)
+							if line ~= "" then
+								event.fire("irc:raw", short_name, line)
+							end
+							return ""
+						end)
+					end
+				end
+			end, {
+				["short_name"] = name
+			})
+			rpc.call("log.normal", "IRC", "Connected to "..name..".")
+		else
+			rpc.call("log.critical", "IRC", "Failed to connect to "..name..": "..tostring(err))
+		end
 	end
 
 	event.handle("irc:raw", function(server, line) -- throw the messages in the parser!
