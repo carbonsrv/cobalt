@@ -23,6 +23,7 @@ end
 
 -- Load libs.
 thread = require("thread")
+rpc = require("libs.multirpc")
 logger = require("libs.logger")
 loader = require("libs.loader")
 msgpack = require("msgpack")
