@@ -67,7 +67,7 @@ end
 
 function _M.call(name, ...)
 	if ({...})[1] then
-		pubsub.pub("cmd:"..name, msgpack.pack({...}))
+		pubsub.pub("cmd:"..name, msgpack.pack(table.pack(...)))
 	else
 		pubsub.pub("cmd:"..name)
 	end

@@ -11,7 +11,7 @@ function _M.start_handler()
 				-- Arguments
 				local replyargs = {"irc.msg", server, sendto}
 
-				event.fire("chatcmd:"..cmd, replyargs, from, sendto, match)
+				event.fire("chatcmd:"..cmd, replyargs, from, sendto, match, server)
 
 				return ""
 			end
@@ -31,7 +31,7 @@ function _M.add(name, func, binds, spawnthread, buffer)
 			local targs = {
 				["fn"] = fn,
 				cmdname = cmd_name,
-				call_args = {...},
+				call_args = table.pack(...),
 				rargs = replyargs,
 			}
 			for k, v in pairs(vars) do
@@ -41,11 +41,12 @@ function _M.add(name, func, binds, spawnthread, buffer)
 			end
 			thread.spawn(function()
 				rpc = require("libs.multirpc")
+				local replyargs = rargs
+				table.insert(call_args, rargs)
 				local suc, res = pcall(loadstring(fn), unpack(call_args))
 				if suc then
-					local rpcargs = rargs
-					table.insert(rpcargs, res)
-					rpc.call(unpack(rpcargs))
+					table.insert(replyargs, res)
+					rpc.call(unpack(replyargs))
 				else
 					rpc.call("log.important", "chatcmd:"..cmdname, "Error: "..res)
 				end
@@ -70,7 +71,9 @@ function _M.add(name, func, binds, spawnthread, buffer)
 		end
 		event.handle("chatcmd:"..name, function(replyargs, ...)
 			cmd_func = cmd_func or loadstring(fn)
-			local suc, res = pcall(cmd_func, ...)
+			local args = table.pack(...)
+			table.insert(args, replyargs)
+			local suc, res = pcall(cmd_func, unpack(args, 1, args.n))
 			if suc then
 				table.insert(replyargs, res)
 				rpc.call(unpack(replyargs))

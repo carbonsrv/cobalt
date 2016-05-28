@@ -58,7 +58,7 @@ function _M.handle(name, func, bindings, buffer)
 			else
 				args = {}
 			end
-			local suc, err = pcall(func, unpack(args))
+			local suc, err = pcall(func, unpack(args, 1, args.n))
 			if not suc then
 				logger.log(event_name, logger.normal, "(╯°□°）╯︵ ┻━┻: "..err)
 			end
@@ -104,7 +104,7 @@ function _M.netdial(in_name, out_name, proto, addr)
 		local msgpack = require("msgpack")
 		local pubsub = require("libs.pubsub")
 		while true do
-			pubsub.pub(name, msgpack.pack({com.receive(threadcom)}))
+			pubsub.pub(name, msgpack.pack(table.pack(com.receive(threadcom))))
 		end
 	end, {
 		name = "event:"..out_name
@@ -114,7 +114,7 @@ end
 
 function _M.fire(name, ...)
 	if ({...})[1] then
-		pubsub.pub("event:"..name, msgpack.pack({...}))
+		pubsub.pub("event:"..name, msgpack.pack(table.pack(...)))
 	else
 		pubsub.pub("event:"..name)
 	end
@@ -122,7 +122,7 @@ end
 
 function _M.force_fire(name, ...)
 	if ({...})[1] then
-		pubsub.pub("event:"..name, msgpack.pack({...}), true)
+		pubsub.pub("event:"..name, msgpack.pack(table.pack(...)), true)
 	else
 		pubsub.pub("event:"..name, nil, true)
 	end
