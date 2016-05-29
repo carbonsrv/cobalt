@@ -9,21 +9,24 @@ if settings.zmachine then
 				return "Usage: zm-load <IF path>"
 			end
 
-			local cmd = exec.exec("./tools/faketty", dfrotzpath, "-p", "-w", "100", args)
-			local cmdkey = "cobalt:zmachine:cmd:"..server..":"..chan
+			local zm = exec.exec("./tools/faketty", dfrotzpath, "-p", "-w", "180", args)
+			local zmkey = "cobalt:zmachine:zm:"..server..":"..chan
+			local lockey = "cobalt:zmachine:loc:"..server..":"..chan
+			local scorekey = "cobalt:zmachine:score:"..server..":"..chan
+			local moveskey = "cobalt:zmachine:moves:"..server..":"..chan
 
-			local oldcmd = kvstore.get(cmdkey)
-			if oldcmd then
-				oldcmd.Kill()
+			local oldzm = kvstore.get(zmkey)
+			if oldzm then
+				oldzm.Kill()
 			end
 
-			print("Key: "..cmdkey)
-			kvstore.set(cmdkey, cmd)
+			print("Key: "..zmkey)
+			kvstore.set(zmkey, zm)
 			os.sleep(0.5) -- check if it actually ran
-			local didcrash = cmd.State() and cmd.State().Exited()
+			local didcrash = zm.State() and zm.State().Exited()
 			if not didcrash then
 				-- Store state
-				kvstore.set(cmdkey, cmd)
+				kvstore.set(zmkey, zm)
 
 				-- Lets go, baby!
 				thread.spawn(function()
@@ -31,6 +34,7 @@ if settings.zmachine then
 					local event = require("libs.event")
 					local rpc = require("libs.multirpc")
 					local prettify = require("prettify")
+					local irccolors = require("libs.irccolors")
 
 					function print(...)
 						rpc.call("log.normal", "Z-Machine", prettify(...))
@@ -38,31 +42,48 @@ if settings.zmachine then
 
 					-- Pump it through, babe.
 					local buff = "" -- for later
+
 					local rlen = #replyargs
 					ltn12.pump.all(
-						exec.source_using(cmd),
+						exec.source_using(zm),
 						function(block)
 							if not block then
 								return
 							end
 
+							-- TODO: replace these hacks with something proper.
 							local tmp = buff .. block
-							buff = string.gsub(tmp, "(.-)[\r\n]", function(line)
-								if line ~= "" then
-									-- TODO: replace these hacks with something proper.
-									if line:match("^%>") then -- disable the echo thing
-										return ""
-									elseif line:match("to begin]") or line:match("to continue]") or line:match("%*%*%*MORE%*%*%*") or line:match("press a key") or line:match("any other") then
-										cmd.Write_Stdin("\n")
-										return ""
-									else
-										replyargs[rlen + 1] = line
-										print(line)
-										rpc.call(unpack(replyargs))
+							if tmp:match("key to continue") or tmp:match("%*%*%*MORE%*%*%*") or tmp:match("press a key") then -- prompts
+								print("Found: "..tmp)
+								zm.Write_Stdin("\n")
+								buff = ""
+							else
+								buff = string.gsub(tmp, "(.-)[\r\n]", function(line)
+									if line ~= "" then
+										-- Status parsing
+										local loc, score, moves = line:match("^ +(.-) +Score: (%d+) +Moves: (%d+)")
+										if loc and score and moves then -- score
+											-- Save location, score and ammount of moves
+											kvstore.set(lockey, loc)
+											kvstore.set(scorekey, score)
+											kvstore.set(moveskey, moves)
+
+											return irccolors.bold .. "> "..loc.." <"
+										elseif line:match("^%>") or line:match("^%. *$") or line:match("^ +$") then -- disable the echo thing, random dots followed by spaces, just spaces, generally stuff useless
+											return ""
+										elseif line:match("key to continue") or line:match("%*%*%*MORE%*%*%*") or line:match("press a key") then -- prompts
+											--zm.Write_Stdin("\n")
+											return ""
+										else
+											line = line:gsub(" +$", "")
+											replyargs[rlen + 1] = line
+											print(line)
+											rpc.call(unpack(replyargs))
+										end
 									end
-								end
-								return ""
-							end)
+									return ""
+								end)
+							end
 							return 1
 						end
 					)
@@ -80,7 +101,7 @@ if settings.zmachine then
 
 	command.add("zm-stop", function(from, chan, args, server) -- stopping Z-Machine, not sure why you would do that. Only not fun persons do that, meanie. :(
 			if perms[from] >= 2 then
-				local key = "cobalt:zmachine:cmd:"..server..":"..chan
+				local key = "cobalt:zmachine:zm:"..server..":"..chan
 				local zm = kvstore.get(key)
 				if zm then
 					zm.Kill()
@@ -96,8 +117,23 @@ if settings.zmachine then
 		perms = settings.permissions,
 	})
 
-	command.add("zm", function(from, chan, args, server)
-		local zm = kvstore.get("cobalt:zmachine:cmd:"..server..":"..chan)
+	command.add("zm-status", function(from, chan, args, server) -- interaction
+		local prefix = "cobalt:zmachine:"
+		local postfix = ":"..server..":"..chan
+		local zm = kvstore.get(prefix.."zm"..postfix)
+		if zm then
+			local irccolors = require("libs.irccolors")
+			local loc = kvstore.get(prefix.."loc"..postfix)
+			local score = kvstore.get(prefix.."score"..postfix)
+			local moves = kvstore.get(prefix.."moves"..postfix)
+			return "Z-Machine running. Currently at "..irccolors.bold..loc..irccolors.bold.." with a score of "..tostring(score)..", having done "..tostring(moves).." moves."
+		else
+			return "No Z-Machine running. Ask a bot administrator to start a game for you."
+		end
+	end)
+
+	command.add("zm", function(from, chan, args, server) -- interaction
+		local zm = kvstore.get("cobalt:zmachine:zm:"..server..":"..chan)
 		if zm then
 			if args then
 				zm.Write_Stdin(args.."\n")
