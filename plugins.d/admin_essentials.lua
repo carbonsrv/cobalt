@@ -10,7 +10,15 @@ end, {
 })
 
 command.add("perms", function(from, chan, args)
-	return "You have a permission level of " .. tostring(perms[from] or 0) .."."
+	if not args then
+		return "You have a permission level of " .. tostring(perms[from] or 0) .."."
+	else
+		if type(args) == "string" then
+			return tostring(args) .. " has a permission level of " .. tostring(perms[args] or 0) .. "."
+		else
+			return "Usage: perms [name]"
+		end
+	end
 end, {
 	perms = settings.permissions,
 })
