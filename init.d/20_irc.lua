@@ -23,7 +23,11 @@ if settings.irc then -- Only continue if there are actually IRC Servers in the c
 
 	event.handle("irc:finished_init", function(server_name) -- Handle finished connections
 		event = require("libs.event")
-		os.sleep(10)
+		os.sleep(5)
+		if irc_set[server_name].postinit then
+			event.fire("irc:send_"..server_name, irc_set[server_name].postinit)
+		end
+		os.sleep(5)
 
 		for n, chan in pairs(irc_set[server_name].channels) do
 			os.sleep(0.5)

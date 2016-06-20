@@ -4,7 +4,7 @@
 cobalt = {}
 cobalt.version = "v0.01"
 
-dofile(var.root.."/banner.lua")
+assert(loadstring(fs.readfile("banner.lua")))()
 
 local colors = require("libs.ansicolors")
 

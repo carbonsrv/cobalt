@@ -1,7 +1,11 @@
-#!/bin/bash
-if  [[ "$OSTYPE" == "darwin"* ]]; then
-	#exec script -q "$@" /dev/null #"$(printf "'%s' " "$@")"
-	exec script -q /dev/null "$@"#"$(printf "'%s' " "$@")"
+#!/bin/sh
+if hash python 2>/dev/null; then
+	exec python -c 'import pty, sys; sys.exit(pty.spawn(sys.argv[1:]))' "$@"
 else
-	exec script -qc "$(printf "'%s' " "$@")" /dev/null
+	if [[ "$OSTYPE" == "darwin"* ]]; then
+		#exec script -q "$@" /dev/null #"$(printf "'%s' " "$@")"
+		exec script -q /dev/null "$@"#"$(printf "'%s' " "$@")"
+	else
+		exec script -qfec "$(printf "'%s' " "$@")" /dev/null
+	fi
 fi
